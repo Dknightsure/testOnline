@@ -46,14 +46,43 @@ var BlankQuestionModel = db.model('BlankQuestions', BlankQuestionSchema);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a index');
+  // res.send('respond with a index');
+  res.render('manage-question');
 });
 
 router.get('/add-question', function(req, res, next) {
   res.render('add-question');
 });
 
-router.post('/api/add-single', function(req, res, next) {
+router.get('/api/query-single-question', function(req, res, next){
+  SingleQuestionModel.find({}, function(err, data){
+    res.json(data);
+  });
+})
+
+router.post('/api/alter-single-question', function(req, res, next){
+  var question_data = JSON.parse(req.body.question_data);
+  SingleQuestionModel.findById(question_data._id, function(err, question){
+    if (err) {
+      return console.log(err);
+    }else{
+      question.title = question_data.title;
+      question.itemList = question_data.itemList;
+      question.answer = question_data.answer;
+      question.diffculty = question_data.diffculty;
+
+      question.save(function(err){
+        if(err){
+          console.log(err);
+          res.json('fail');
+        }
+        res.json('success');
+      })
+    }
+  })
+})
+
+router.post('/api/add-single-question', function(req, res, next){
   var question_data = JSON.parse(req.body.question_data);
   var question = new SingleQuestionModel({
     title: question_data.title,
@@ -65,9 +94,55 @@ router.post('/api/add-single', function(req, res, next) {
   });
 
   question.save(function(err, ques){
-    if(err) return console.error(err);
+    if(err){
+      console.log(err);
+      res.json('fail');
+    }else{
+      res.json('success');
+    }
+  })
+});
+
+router.post('/api/add-mutiple-question', function(req, res, next){
+  var question_data = JSON.parse(req.body.question_data);
+  var question = new MutipleQuestionModel({
+    title: question_data.title,
+    itemList: question_data.itemList,
+    answer: question_data.answer,
+    diffculty: question_data.diffculty,
+    author: question_data.author,
+    type: question_data.type
   });
-  res.json('success');
+
+  question.save(function(err, ques){
+    if(err){
+      console.log(err);
+      res.json('fail');
+    }else{
+      res.json('success');
+    }
+  });
+});
+
+router.post('/api/add-blank-question', function(req, res, next){
+  var question_data = JSON.parse(req.body.question_data);
+  console.log(question_data);
+  var question = new BlankQuestionModel({
+    title: question_data.title,
+    answer: question_data.answer,
+    diffculty: question_data.diffculty,
+    author: question_data.author,
+    type: question_data.type
+  });
+
+  question.save(function(err, ques){
+    if(err){
+      console.log(err);
+      res.json('fail');
+    }else{
+      res.json('success');
+    }
+  });
 });
 
 router.post('/api/add-mutiple', function(req, res, next) {
@@ -97,7 +172,7 @@ router.post('/api/add-blank', function(req, res, next) {
     author: question_data.author,
     type: question_data.type
   });
-  
+
   question.save(function(err, ques){
     if(err) return console.error(err);
   });

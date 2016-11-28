@@ -1,0 +1,75 @@
+h1{
+  margin: 60px auto 20px auto;
+  text-align: center;
+}
+
+.mycontainer{
+  margin: 0 auto;
+}
+
+.nav li a.active{
+  background-color: #337ab7;
+  color: #ffffff;
+}
+
+.question-title,
+.question-item{
+  word-wrap: break-word;
+}
+
+.question-each{
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eeeeee;
+  overflow: hidden;
+}
+
+.q-i{
+  clear: both;
+  overflow: hidden;
+}
+
+.single-right-answer-list{
+  list-style: none;
+  overflow: hidden;
+  padding-top: 6px;
+}
+
+.single-right-answer-list li{
+  float: left;
+  margin-right: 20px;
+}
+
+.question-item-ul{
+  list-style: none;
+  padding-left: 0;
+  overflow: hidden;
+}
+.question-item-ul li{
+  overflow: hidden;
+  position: relative;
+}
+
+/*.question-item-ul li:hover{
+  box-shadow: 3px 3px 5px #e0dfdf;
+}*/
+
+.question-item-ul li:hover .btn-cancel{
+  display: block;
+}
+
+.btn-cancel{
+  display: none;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  left: 20px;
+  top: 7px;
+  font-style: normal;
+  cursor: pointer;
+  text-align: center;
+  background-color: #eee;
+}
+.btn-cancel:hover{
+  background-color: #e6e1e1;
+}

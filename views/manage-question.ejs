@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>管理试题库</title>
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
+    <link href="stylesheets/manage-question.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>管理试题库</h1>
+    </div>
+    <div class="container-fluid" id="query-app">
+      <div class="row">
+        <ul class="nav nav-pills nav-stacked col-md-offset-1 col-md-2" role="tablist">
+          <li role="presentation"><router-link to="/my-single">我的单选</router-link></li>
+          <li role="presentation"><router-link to="/my-mutiple">我的多选</router-link></li>
+          <li role="presentation"><router-link to="/my-blank">我的填空</router-link></li>
+          <li role="presentation"><router-link to="/add-single">添加单选</router-link></li>
+          <li role="presentation"><router-link to="/add-mutiple">添加多选</router-link></li>
+          <li role="presentation"><router-link to="/add-blank">添加填空</router-link></li>
+        </ul>
+        <div class="col-md-6">
+          <router-view></router-view>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <script type="text/x-template" id="single-panel-tpl">
+      <div>
+        <component :is="currentView" v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="singleQuestion" v-on:finishAlter='successAlter'></component>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="alter-single-tpl">
+      <div class="single add">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="single_question_title" class="col-sm-2 control-label">单选题目</label>
+            <div class="col-sm-10">
+              <textarea rows="5" cols="40" class="form-control" v-model.trim="question.title" placeholder="在这里填入题目标题..."></textarea>
+            </div>
+          </div>
+          <ul class="question-item-ul">
+            <li class="form-group" v-for="(item, item_index) in question.itemList">
+              <label class="col-sm-2 control-label">选项 {{ item_index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control j-item" v-model="question.itemList[item_index]" placeholder="填入选项...">
+              </div>
+              <i class="btn-cancel" v-on:click="removeItem(item_index)">X</i>
+            </li>
+          </ul>
+          <div class="form-group">
+            <label for="" class="col-sm-2 control-label">正确答案:</label>
+            <ul class="single-right-answer-list col-sm-10">
+              <li v-for="(item, item_index) in question.itemList">
+                <label>
+                  <input type="radio" name="single_radio" v-model="question.answer" v-bind:value="item_index">
+                  选项 {{ item_index | numToChar }}
+                </label>
+              </li>
+            </ul>
+          </div>
+          <div class="form-group">
+            <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" v-model="question.diffculty">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" v-on:click="addItem">添加选项</button>
+              <button type="button" class="btn btn-default" v-on:click="addQuestion">保存</button>
+              <button type="button" class="btn btn-default" v-on:click="giveUpAlter">放弃修改</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="query-single-tpl">
+      <div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">单选题目:</label>
+          <div class="col-sm-10">
+            <p class="question-title">{{ initQuestion.title }}</p>
+          </div>
+        </div>
+        <ul class="question-item-ul">
+          <li v-for="(item, index) in initQuestion.itemList">
+            <div>
+              <label for="single_question_title" class="col-sm-2 control-label">选项 {{ index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <p class="question-item">{{ item  }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ initQuestion.diffculty }}</p>
+          </div>
+        </div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">正确答案：</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ initQuestion.answer | numToChar }}</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-default" v-on:click="alterQuestion">修改</button>
+            <button type="button" class="btn btn-default" v-on:click="deleteQuestion">删除</button>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="single-list-tpl">
+      <ul>
+        <li v-for="(item, index) in questionList" class="question-each">
+          <single-panel v-bind:singleQuestion="item" v-on:refreshList="fetchData"></single-panel>
+        </li>
+      </ul>
+    </script>
+
+    <script type="text/x-template" id="mutiple-list-tpl">
+      <ul>
+        <li v-for="(item, index) in questionList" class="question-each">
+          <mutiple-panel v-bind:mutipleQuestion="item"></mutiple-panel>
+        </li>
+      </ul>
+    </script>
+
+    <script type="text/x-template" id="mutiple-panel-tpl">
+      <component :is="currentView" keep-alive v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="question"></component>
+    </script>
+
+    <script type="text/x-template" id="alter-mutiple-tpl">
+      <div class="single add">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="single_question_title" class="col-sm-2 control-label">多选题目</label>
+            <div class="col-sm-10">
+              <textarea rows="5" cols="40" class="form-control" v-model.trim="question.title" placeholder="在这里填入题目标题..."></textarea>
+            </div>
+          </div>
+          <ul class="question-item-ul">
+            <li class="form-group" v-for="(item, item_index) in question.itemList">
+              <label class="col-sm-2 control-label">选项 {{ item_index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control j-item" v-model="question.itemList[item_index]" placeholder="填入选项...">
+              </div>
+              <i class="btn-cancel" v-on:click="removeItem(item_index)">X</i>
+            </li>
+          </ul>
+          <div class="form-group">
+            <label for="" class="col-sm-2 control-label">正确答案:</label>
+            <ul class="single-right-answer-list col-sm-10">
+              <li v-for="(item, item_index) in question.itemList">
+                <label>
+                  <input type="checkbox" name="single_radio" v-model="question.answer" v-bind:value="item_index">
+                  选项 {{ item_index | numToChar }}
+                </label>
+              </li>
+            </ul>
+          </div>
+          <div class="form-group">
+            <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" v-model="question.diffculty">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" v-on:click="addItem">添加选项</button>
+              <button type="button" class="btn btn-default" v-on:click="addQuestion">保存</button>
+              <button type="button" class="btn btn-default" v-on:click="giveUpAlter">放弃修改</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="query-mutiple-tpl">
+      <div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">多选题目:</label>
+          <div class="col-sm-10">
+            <p class="question-title">{{ question.title }}</p>
+          </div>
+        </div>
+        <ul class="question-item-ul">
+          <li v-for="(item, index) in question.itemList">
+            <div>
+              <label for="single_question_title" class="col-sm-2 control-label">选项 {{ index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <p class="question-item">{{ item  }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.diffculty }}</p>
+          </div>
+        </div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">正确答案：</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.answer | numArrToChar }}</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-default" v-on:click="alterQuestion">修改</button>
+            <button type="button" class="btn btn-default" v-on:click="deleteQuestion">删除</button>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="alter-blank-tpl">
+      <div class="blank add">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="blank_question_title" class="col-sm-2 control-label">填空题</label>
+            <div class="col-sm-10">
+              <textarea rows="5" cols="40" class="form-control" v-model.trim="question.title" placeholder="在这里填入题目标题..."></textarea>
+            </div>
+          </div>
+          <ul class="question-item-ul">
+            <li class="form-group" v-for="(item, item_index) in question.answer">
+              <label class="col-sm-2 control-label">答案 {{ item_index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control j-item" v-model="question.answer[item_index]" placeholder="填入答案...">
+              </div>
+              <i class="btn-cancel" v-on:click="removeItem(item_index)">X</i>
+            </li>
+          </ul>
+          <div class="form-group">
+            <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" v-model="question.diffculty">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" v-on:click="addItem">添加选项</button>
+              <button type="button" class="btn btn-default" v-on:click="addQuestion">保存</button>
+              <button type="button" class="btn btn-default" v-on:click="giveUpAlter">放弃修改</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="query-blank-tpl">
+      <div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">填空题目:</label>
+          <div class="col-sm-10">
+            <p class="question-title">{{ question.title }}</p>
+          </div>
+        </div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.diffculty }}</p>
+          </div>
+        </div>
+        <ul class="question-item-ul">
+          <li v-for="(item, index) in question.answer">
+            <div>
+              <label for="single_question_title" class="col-sm-2 control-label">答案 {{ index }}：</label>
+              <div class="col-sm-10">
+                <p class="question-item">{{ item }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-default" v-on:click="alterQuestion">修改</button>
+            <button type="button" class="btn btn-default" v-on:click="deleteQuestion">删除</button>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="blank-panel-tpl">
+      <component :is="currentView" keep-alive v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="question"></component>
+    </script>
+
+    <script type="text/x-template" id="blank-list-tpl">
+      <ul>
+        <li v-for="(item, index) in questionList" class="question-each">
+          <blank-panel v-bind:blankQuestion="item"></blank-panel>
+        </li>
+      </ul>
+    </script>
+
+    <script type="text/x-template" id="add-single-tpl">
+      <div class="single add">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="single_question_title" class="col-sm-2 control-label">单选题目</label>
+            <div class="col-sm-10">
+              <textarea rows="5" cols="40" class="form-control" v-model.trim="question.title" placeholder="在这里填入题目标题..."></textarea>
+            </div>
+          </div>
+          <ul class="question-item-ul">
+            <li class="form-group" v-for="(item, item_index) in question.itemList">
+              <label class="col-sm-2 control-label">选项 {{ item_index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control j-item" v-model="question.itemList[item_index]" placeholder="填入选项...">
+              </div>
+              <i class="btn-cancel" v-on:click="removeItem(item_index)">X</i>
+            </li>
+          </ul>
+          <div class="form-group">
+            <label for="" class="col-sm-2 control-label">正确答案:</label>
+            <ul class="single-right-answer-list col-sm-10">
+              <li v-for="(item, item_index) in question.itemList">
+                <label>
+                  <input type="radio" name="single_radio" v-model="question.answer" v-bind:value="item_index">
+                  选项 {{ item_index | numToChar }}
+                </label>
+              </li>
+            </ul>
+          </div>
+          <div class="form-group">
+            <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" v-model="question.diffculty">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" v-on:click="addItem">添加选项</button>
+              <button type="button" class="btn btn-default" v-on:click="addQuestion">保存</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="add-mutiple-tpl">
+      <div class="single add">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="single_question_title" class="col-sm-2 control-label">多选题目</label>
+            <div class="col-sm-10">
+              <textarea rows="5" cols="40" class="form-control" v-model.trim="question.title" placeholder="在这里填入题目标题..."></textarea>
+            </div>
+          </div>
+          <ul class="question-item-ul">
+            <li class="form-group" v-for="(item, item_index) in question.itemList">
+              <label class="col-sm-2 control-label">选项 {{ item_index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control j-item" v-model="question.itemList[item_index]" placeholder="填入选项...">
+              </div>
+              <i class="btn-cancel" v-on:click="removeItem(item_index)">X</i>
+            </li>
+          </ul>
+          <div class="form-group">
+            <label for="" class="col-sm-2 control-label">正确答案:</label>
+            <ul class="single-right-answer-list col-sm-10">
+              <li v-for="(item, item_index) in question.itemList">
+                <label>
+                  <input type="checkbox" name="single_radio" v-model="question.answer" v-bind:value="item_index">
+                  选项 {{ item_index | numToChar }}
+                </label>
+              </li>
+            </ul>
+          </div>
+          <div class="form-group">
+            <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" v-model="question.diffculty">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" v-on:click="addItem">添加选项</button>
+              <button type="button" class="btn btn-default" v-on:click="addQuestion">保存</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="add-blank-tpl">
+      <div class="blank add">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="blank_question_title" class="col-sm-2 control-label">填空题</label>
+            <div class="col-sm-10">
+              <textarea rows="5" cols="40" class="form-control" v-model.trim="question.title" placeholder="在这里填入题目标题..."></textarea>
+            </div>
+          </div>
+          <ul class="question-item-ul">
+            <li class="form-group" v-for="(item, item_index) in question.answer">
+              <label class="col-sm-2 control-label">答案 {{ item_index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control j-item" v-model="question.answer[item_index]" placeholder="填入答案...">
+              </div>
+              <i class="btn-cancel" v-on:click="removeItem(item_index)">X</i>
+            </li>
+          </ul>
+          <div class="form-group">
+            <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" v-model="question.diffculty">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" v-on:click="addItem">添加答案项</button>
+              <button type="button" class="btn btn-default" v-on:click="addQuestion">保存</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </script>
+
+    <script src="javascripts/jquery.min.js"></script>
+    <script src="javascripts/bootstrap.min.js"></script>
+    <script src="javascripts/vue.js"></script>
+    <script src="javascripts/vue-resource.js"></script>
+    <script src="javascripts/vue-router.js"></script>
+    <script src="javascripts//manage-question.js"></script>
+  </body>
+</html>
