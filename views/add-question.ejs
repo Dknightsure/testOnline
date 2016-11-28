@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test Online</title>
+
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
+    <link href="stylesheets/star-rating.min.css" rel="stylesheet">
+    <link href="stylesheets/add-question.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>录入试题</h1>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <ul class="nav nav-pills nav-stacked col-md-offset-1 col-md-2" role="tablist">
+          <li role="presentation" class="active"><a href="#">添加单选</a></li>
+          <li role="presentation"><a href="#">添加多选</a></li>
+          <li role="presentation"><a href="#">添加填空题</a></li>
+        </ul>
+        <div class="col-md-6">
+          <div class="single add">
+            <form class="form-horizontal" role="form" id="single_form" onsubmit="return checkSingle()">
+              <div class="form-group">
+                <label for="single_question_title" class="col-sm-2 control-label">单选题目</label>
+                <div class="col-sm-10">
+                  <textarea rows="5" cols="40" class="form-control" id="single_question_title"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="single_item_A" class="col-sm-2 control-label">选项 A</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="single_item_A" placeholder="选项A">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="single_item_B" class="col-sm-2 control-label">选项 B</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="single_item_B" placeholder="选项B">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="single_item_C" class="col-sm-2 control-label">选项 C</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="single_item_C" placeholder="选项C">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="single_item_D" class="col-sm-2 control-label">选项 D</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="single_item_D" placeholder="选项D">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="" class="col-sm-2 control-label">正确答案:</label>
+                <div class="col-sm-10">
+                  <div class="radio my-radio-box">
+                    <label>
+                      <input type="radio" name="single_radio" id="single_radio1" value="option1" checked>
+                      选项 A
+                    </label>
+                  </div>
+                  <div class="radio my-radio-box">
+                    <label>
+                      <input type="radio" name="single_radio" id="single_radio2" value="option2">
+                      选项 B
+                    </label>
+                  </div>
+                  <div class="radio my-radio-box">
+                    <label>
+                      <input type="radio" name="single_radio" id="single_radio2" value="option2">
+                      选项 C
+                    </label>
+                  </div>
+                  <div class="radio my-radio-box">
+                    <label>
+                      <input type="radio" name="single_radio" id="single_radio2" value="option2">
+                      选项 D
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="single-diffculty" class="col-sm-2 control-label">难度选择：</label>
+                <div class="col-sm-10">
+                  <input id="single-diffculty" type="text" class="rating">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="button" class="btn btn-default">添加选项</button>
+                  <button type="submit" class="btn btn-default">保存</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="mutiple add">
+            <form class="form-horizontal" role="form" onsubmit="return checkMutiple()" id="mutiple_form">
+              <div class="form-group">
+                <label for="mutiple_question_title" class="col-sm-2 control-label">多选题目</label>
+                <div class="col-sm-10">
+                  <textarea rows="5" cols="40" id="mutiple_question_title" class="form-control"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="mutiple_item_A" class="col-sm-2 control-label">选项 A</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="mutiple_item_A" placeholder="选项A">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="mutiple_item_B" class="col-sm-2 control-label">选项 B</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="mutiple_item_B" placeholder="选项B">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="mutiple_item_C" class="col-sm-2 control-label">选项 C</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="mutiple_item_C" placeholder="选项C">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="mutiple_item_D" class="col-sm-2 control-label">选项 D</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="mutiple_item_D" placeholder="选项D">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="" class="col-sm-2 control-label">正确答案:</label>
+                <div class="col-sm-10">
+                  <div class="checkbox my-checkbox-box">
+                    <label>
+                      <input type="checkbox" name="mutiple_checkbox" id="mutiple_checkbox1" value="option1" checked>
+                      选项 A
+                    </label>
+                  </div>
+                  <div class="checkbox my-checkbox-box">
+                    <label>
+                      <input type="checkbox" name="mutiple_checkbox" id="mutiple_checkbox2" value="option2">
+                      选项 B
+                    </label>
+                  </div>
+                  <div class="checkbox my-checkbox-box">
+                    <label>
+                      <input type="checkbox" name="mutiple_checkbox" id="mutiple_checkbox2" value="option2">
+                      选项 C
+                    </label>
+                  </div>
+                  <div class="checkbox my-checkbox-box">
+                    <label>
+                      <input type="checkbox" name="mutiple_checkbox" id="mutiple_checkbox2" value="option2">
+                      选项 D
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="mutiple-diffculty" class="col-sm-2 control-label">难度选择：</label>
+                <div class="col-sm-10">
+                  <input id="mutiple-diffculty" type="text" class="rating">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="button" class="btn btn-default">添加选项</button>
+                  <button type="submit" class="btn btn-default">保存</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="blank add">
+            <form class="form-horizontal" role="form" onsubmit="return checkBlank()" id="blank_form">
+              <div class="form-group">
+                <label for="blank_question_title" class="col-sm-2 control-label">填空题</label>
+                <div class="col-sm-10">
+                  <textarea rows="5" cols="40" id="blank_question_title" class="form-control"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="blank_item_A" class="col-sm-2 control-label">答案一</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control j-item" id="blank_item_A" placeholder="答案一">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="blank-diffculty" class="col-sm-2 control-label">难度选择：</label>
+                <div class="col-sm-10">
+                  <input id="blank-diffculty" type="text" class="rating">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="button" class="btn btn-default">添加答案</button>
+                  <button type="submit" class="btn btn-default">保存</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <script src="javascripts/jquery.min.js"></script>
+    <script src="javascripts/bootstrap.min.js"></script>
+    <script src="javascripts/star-rating.min.js"></script>
+    <script src="javascripts/add-question.js"></script>
+  </body>
+</html>
