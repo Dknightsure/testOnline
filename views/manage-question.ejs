@@ -31,7 +31,7 @@
 
     <script type="text/x-template" id="single-panel-tpl">
       <div>
-        <component :is="currentView" v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="singleQuestion" v-on:finishAlter='successAlter'></component>
+        <component :is="currentView" v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="singleQuestion" v-on:finishAlter='successAlter' v-on:finishDelete='successDelete'></component>
       </div>
     </script>
 
@@ -131,13 +131,13 @@
     <script type="text/x-template" id="mutiple-list-tpl">
       <ul>
         <li v-for="(item, index) in questionList" class="question-each">
-          <mutiple-panel v-bind:mutipleQuestion="item"></mutiple-panel>
+          <mutiple-panel v-bind:mutipleQuestion="item" v-on:refreshList="fetchData"></mutiple-panel>
         </li>
       </ul>
     </script>
 
     <script type="text/x-template" id="mutiple-panel-tpl">
-      <component :is="currentView" keep-alive v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="question"></component>
+      <component :is="currentView" keep-alive v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="mutipleQuestion" v-on:finishAlter="successAlter" v-on:finishDelete="successDelete"></component>
     </script>
 
     <script type="text/x-template" id="alter-mutiple-tpl">
@@ -191,11 +191,11 @@
         <div class="q-i">
           <label for="single_question_title" class="col-sm-2 control-label">多选题目:</label>
           <div class="col-sm-10">
-            <p class="question-title">{{ question.title }}</p>
+            <p class="question-title">{{ initQuestion.title }}</p>
           </div>
         </div>
         <ul class="question-item-ul">
-          <li v-for="(item, index) in question.itemList">
+          <li v-for="(item, index) in initQuestion.itemList">
             <div>
               <label for="single_question_title" class="col-sm-2 control-label">选项 {{ index | numToChar }}：</label>
               <div class="col-sm-10">
@@ -207,13 +207,13 @@
         <div class="q-i">
           <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
           <div class="col-sm-10">
-            <p class="question-item">{{ question.diffculty }}</p>
+            <p class="question-item">{{ initQuestion.diffculty }}</p>
           </div>
         </div>
         <div class="q-i">
           <label for="single_question_title" class="col-sm-2 control-label">正确答案：</label>
           <div class="col-sm-10">
-            <p class="question-item">{{ question.answer | numArrToChar }}</p>
+            <p class="question-item">{{ initQuestion.answer | numArrToChar }}</p>
           </div>
         </div>
         <div class="form-group">
@@ -265,19 +265,19 @@
         <div class="q-i">
           <label for="single_question_title" class="col-sm-2 control-label">填空题目:</label>
           <div class="col-sm-10">
-            <p class="question-title">{{ question.title }}</p>
+            <p class="question-title">{{ initQuestion.title }}</p>
           </div>
         </div>
         <div class="q-i">
           <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
           <div class="col-sm-10">
-            <p class="question-item">{{ question.diffculty }}</p>
+            <p class="question-item">{{ initQuestion.diffculty }}</p>
           </div>
         </div>
         <ul class="question-item-ul">
-          <li v-for="(item, index) in question.answer">
+          <li v-for="(item, index) in initQuestion.answer">
             <div>
-              <label for="single_question_title" class="col-sm-2 control-label">答案 {{ index }}：</label>
+              <label for="single_question_title" class="col-sm-2 control-label">答案 {{ index | numToChar }}：</label>
               <div class="col-sm-10">
                 <p class="question-item">{{ item }}</p>
               </div>
@@ -294,13 +294,13 @@
     </script>
 
     <script type="text/x-template" id="blank-panel-tpl">
-      <component :is="currentView" keep-alive v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="question"></component>
+      <component :is="currentView" keep-alive v-on:alter="toggleAlter" v-on:query="toggleQuery" v-bind:initQuestion="blankQuestion" v-on:finishAlter="successAlter" v-on:finishDelete="successDelete"></component>
     </script>
 
     <script type="text/x-template" id="blank-list-tpl">
       <ul>
         <li v-for="(item, index) in questionList" class="question-each">
-          <blank-panel v-bind:blankQuestion="item"></blank-panel>
+          <blank-panel v-bind:blankQuestion="item" v-on:refreshList="fetchData"></blank-panel>
         </li>
       </ul>
     </script>

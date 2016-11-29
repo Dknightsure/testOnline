@@ -88,9 +88,7 @@ Vue.component('query-single', {
   template: '#query-single-tpl',
   props: ['initQuestion'],
   data: function(){
-    return {
-      // question: deepClone(this.initQuestion)
-    }
+    return {}
   },
   methods: {
     alterQuestion: function(){
@@ -98,17 +96,18 @@ Vue.component('query-single', {
       this.$emit('alter');
     },
     deleteQuestion: function(){
-      // console.log('delete');
-      // if(confirm('确定要删除吗?')){
-      //   this.singleList.splice(index, 1);
-      // }
-      var data = {
-        title: this.initQuestion.title,
-        itemList: this.initQuestion.itemList,
-        answer: this.initQuestion.answer,
-        diffculty: this.initQuestion.diffculty
-      }
-      console.log(data);
+      var id = this.initQuestion._id;
+      this.$http.post('/api/remove-single-question',{id: id}).then(
+        function(response){
+          if(response.body == 'success'){
+            alert('删除成功')
+            this.$emit('finishDelete');
+          }
+        },
+        function(response){
+          console.log(response);
+        }
+      )
     }
   },
   created: function(){
@@ -121,8 +120,7 @@ Vue.component('single-panel', {
   props: ['singleQuestion'],
   data: function(){
     return {
-      currentView: 'query-single',
-      question: this.singleQuestion
+      currentView: 'query-single'
     }
   },
   methods: {
@@ -134,6 +132,9 @@ Vue.component('single-panel', {
     },
     successAlter: function(){
       this.currentView = 'query-single';
+      this.$emit('refreshList');
+    },
+    successDelete: function(){
       this.$emit('refreshList');
     }
   }
@@ -191,6 +192,10 @@ Vue.component('alter-mutiple', {
       this.question.itemList.push('');
     },
     removeItem: function(index){
+      if(this.question.answer.indexOf(index) != -1){
+        alert('不能删除正确答案');
+        return;
+      }
       if(this.question.itemList.length <= 3){
         alert('至少需要三个选项');
         return;
@@ -233,13 +238,25 @@ Vue.component('alter-mutiple', {
       var question_data;
       if(this.validateInput()){
         question_data = {
+          _id: question._id,
           title: question.title,
-          itemList: question.itemList,
+          itemList: question.itemListß,
           diffculty: question.diffculty,
-          answer: question.answer
+          answer: question.answer.sort()
         };
         console.log(question_data);
-        this.$emit('query');
+        question_data = JSON.stringify(question_data);
+        this.$http.post('/api/alter-mutiple-question', {question_data: question_data}).then(
+          function(response){
+            if(response.body === 'success'){
+              alert('修改成功');
+              this.$emit('finishAlter');
+            }
+          },
+          function(response){
+            console.log('fail');
+          }
+        );
       }
     }
   }
@@ -250,7 +267,7 @@ Vue.component('query-mutiple', {
   props: ['initQuestion'],
   data: function(){
     return {
-      question: deepClone(this.initQuestion)
+      // question: deepClone(this.initQuestion)
     }
   },
   methods: {
@@ -259,10 +276,18 @@ Vue.component('query-mutiple', {
       this.$emit('alter');
     },
     deleteQuestion: function(id, index){
-      console.log('delete');
-      if(confirm('确定要删除吗?')){
-        this.singleList.splice(index, 1);
-      }
+      var id = this.initQuestion._id;
+      this.$http.post('/api/remove-mutiple-question',{id: id}).then(
+        function(response){
+          if(response.body == 'success'){
+            alert('删除成功')
+            this.$emit('finishDelete');
+          }
+        },
+        function(response){
+          console.log(response);
+        }
+      )
     }
   },
   created: function(){
@@ -275,8 +300,7 @@ Vue.component('mutiple-panel', {
   props: ['mutipleQuestion'],
   data: function(){
     return {
-      currentView: 'query-mutiple',
-      question: deepClone(this.mutipleQuestion)
+      currentView: 'query-mutiple'
     }
   },
   methods: {
@@ -285,6 +309,13 @@ Vue.component('mutiple-panel', {
     },
     toggleQuery: function(){
       this.currentView = 'query-mutiple';
+    },
+    successAlter: function(){
+      this.currentView = 'query-mutiple';
+      this.$emit('refreshList');
+    },
+    successDelete: function(){
+      this.$emit('refreshList');
     }
   },
   created: function(){
@@ -296,33 +327,29 @@ var mutiple_list = Vue.component('mutiple-list', {
   template: '#mutiple-list-tpl',
   data: function(){
     return {
-      questionList: [
-        {
-          _id: 'q1',
-          title: 'adsfqwe',
-          itemList: ['1', '2', '4', '5'],
-          diffculty: 3,
-          answer: [2, 3]
-        },
-        {
-          _id: 'q2',
-          title: 'adsfqwe',
-          itemList: ['1', '3', '4', '5'],
-          diffculty: 3,
-          answer: [0, 1]
-        },
-        {
-          _id: 'q3',
-          title: '2w3',
-          itemList: ['1', '2', '4', '5'],
-          diffculty: 3,
-          answer: [1, 2]
-        }
-      ]
+      loading: false,
+      questionList: []
     }
   },
   created: function(){
     console.log('MutipleList created');
+    this.fetchData();
+  },
+  methods: {
+    fetchData: function(){
+      console.log('fetch data');
+      this.loading = true;
+      this.$http.get('/api/query-mutiple-question').then(
+        function(response){
+          var list = response.body;
+          this.loading = false;
+          this.questionList = response.body;
+        },
+        function(response){
+          console.log(response)
+        }
+      );
+    }
   }
 })
 
@@ -377,12 +404,24 @@ Vue.component('alter-blank', {
       var question_data;
       if(this.validateInput()){
         question_data = {
+          _id: question._id,
           title: question.title,
           diffculty: question.diffculty,
           answer: question.answer
         };
         console.log(question_data);
-        this.$emit('query');
+        question_data = JSON.stringify(question_data);
+        this.$http.post('/api/alter-blank-question', {question_data: question_data}).then(
+          function(response){
+            if(response.body === 'success'){
+              alert('修改成功');
+              this.$emit('finishAlter');
+            }
+          },
+          function(response){
+            console.log('fail');
+          }
+        );
       }
     }
   }
@@ -392,9 +431,7 @@ Vue.component('query-blank', {
   template: '#query-blank-tpl',
   props: ['initQuestion'],
   data: function(){
-    return {
-      question: deepClone(this.initQuestion)
-    }
+    return {}
   },
   methods: {
     alterQuestion: function(id, index){
@@ -402,10 +439,18 @@ Vue.component('query-blank', {
       this.$emit('alter');
     },
     deleteQuestion: function(id, index){
-      console.log('delete');
-      if(confirm('确定要删除吗?')){
-        this.singleList.splice(index, 1);
-      }
+      var id = this.initQuestion._id;
+      this.$http.post('/api/remove-blank-question',{id: id}).then(
+        function(response){
+          if(response.body == 'success'){
+            alert('删除成功')
+            this.$emit('finishDelete');
+          }
+        },
+        function(response){
+          console.log(response);
+        }
+      )
     }
   },
   created: function(){
@@ -418,8 +463,7 @@ Vue.component('blank-panel', {
   props: ['blankQuestion'],
   data: function(){
     return {
-      currentView: 'query-blank',
-      question: deepClone(this.blankQuestion)
+      currentView: 'query-blank'
     }
   },
   methods: {
@@ -428,6 +472,13 @@ Vue.component('blank-panel', {
     },
     toggleQuery: function(){
       this.currentView = 'query-blank';
+    },
+    successAlter: function(){
+      this.currentView = 'query-blank';
+      this.$emit('refreshList');
+    },
+    successDelete: function(){
+      this.$emit('refreshList');
     }
   },
   created: function(){
@@ -439,25 +490,28 @@ var blank_list = Vue.component('blank-list', {
   template: '#blank-list-tpl',
   data: function(){
     return {
-      questionList: [
-        {
-          _id: 'q1',
-          title: '暗示法',
-          diffculty: 3,
-          answer: ['asdqwe', 'wqe']
+      loading: false,
+      questionList: []
+    }
+  },
+  created: function(){
+    console.log('fetch Data');
+    this.fetchData()
+  },
+  methods: {
+    fetchData: function(){
+      console.log('fetch data');
+      this.loading = true;
+      this.$http.get('/api/query-blank-question').then(
+        function(response){
+          var list = response.body;
+          this.loading = false;
+          this.questionList = response.body;
         },
-        {
-          _id: 'q1',
-          title: 'asdfa请问而且温热sfd',
-          diffculty: 3,
-          answer: ['asdqwe', 'wqe']
-        },{
-          _id: 'q1',
-          title: 'asd阿萨德发fasfd',
-          diffculty: 3,
-          answer: ['asdqwe', 'wqe']
+        function(response){
+          console.log(response)
         }
-      ]
+      );
     }
   }
 });
@@ -571,6 +625,10 @@ var add_mutiple = Vue.component('add-mutiple', {
       this.question.itemList.push('');
     },
     removeItem: function(index){
+      if(this.question.answer.indexOf(index) != -1){
+        alert('不能删除正确答案');
+        return;
+      }
       if(this.question.itemList.length <= 3){
         alert('至少需要三个选项');
         return;
