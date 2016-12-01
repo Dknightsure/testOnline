@@ -42,6 +42,7 @@ h1{
 .question-item-ul{
   list-style: none;
   padding-left: 0;
+  margin-bottom: 0;
   overflow: hidden;
 }
 .question-item-ul li{
@@ -171,4 +172,33 @@ h1{
 
 .fl{
   float: left;
+}
+
+.paper-table{
+  table-layout: fixed;
+}
+
+.paper-table td{
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.paper-table .paper-name{
+  cursor: pointer;
+}
+
+.paper-area{
+  /*padding-bottom: 50px;*/
+}
+
+.paper-area h4{
+  padding-bottom: 10px;
+}
+
+.oflow{
+  overflow: hidden;
+}
+
+.q-item{
+  margin-bottom: 40px;
 }

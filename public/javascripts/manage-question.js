@@ -895,6 +895,180 @@ Vue.component('paper-car', {
   }
 })
 
+var paper_list = Vue.component('paper-list', {
+  template: '#paper-list-tpl',
+  data: function(){
+    return {
+      loading: false,
+      // paperList: [
+      //   {
+      //       "_id" : "583fc4343c5c757741b92b41",
+      //       "name" : "def",
+      //       "blankQuestions" : [
+      //           {
+      //               "title" : "qwerqwerqwerqwe",
+      //               "diffculty" : 3,
+      //               "_id" : "583fc4343c5c757741b92b44",
+      //               "answer" : [
+      //                   "asd"
+      //               ]
+      //           }
+      //       ],
+      //       "mutipleQuestions" : [
+      //           {
+      //               "title" : "65489asdfasdf",
+      //               "diffculty" : 12,
+      //               "_id" : "583fc4343c5c757741b92b43",
+      //               "answer" : [
+      //                   0,
+      //                   1
+      //               ],
+      //               "itemList" : [
+      //                   "qwe",
+      //                   "asd",
+      //                   "a"
+      //               ]
+      //           }
+      //       ],
+      //       "singleQuestions" : [
+      //           {
+      //               "title" : "pqwe",
+      //               "answer" : 0,
+      //               "diffculty" : 3.5,
+      //               "_id" : "583fc4343c5c757741b92b42",
+      //               "itemList" : [
+      //                   "asdf",
+      //                   "we",
+      //                   "er"
+      //               ]
+      //           }
+      //       ],
+      //       "__v" : 0
+      //   },
+      //   {
+      //     "_id" : "583fd31b3c5c757741b92b45",
+      //     "name" : "seco",
+      //     "blankQuestions" : [
+      //         {
+      //             "title" : "qwerqwerqwerqwe",
+      //             "diffculty" : 3,
+      //             "_id" : "583fd31b3c5c757741b92b47",
+      //             "answer" : [
+      //                 "asd"
+      //             ]
+      //         },
+      //         {
+      //             "title" : "5488qwerqwe",
+      //             "diffculty" : 3,
+      //             "_id" : "583fd31b3c5c757741b92b48",
+      //             "answer" : [
+      //                 "asd",
+      //                 "5488"
+      //             ]
+      //         },
+      //         {
+      //             "title" : "12afsdfasfd",
+      //             "diffculty" : 3,
+      //             "_id" : "583fd31b3c5c757741b92b49",
+      //             "answer" : [
+      //                 "sdf",
+      //                 "ad",
+      //                 "568795"
+      //             ]
+      //         }
+      //     ],
+      //     "mutipleQuestions" : [],
+      //     "singleQuestions" : [
+      //         {
+      //             "title" : "pqwe",
+      //             "answer" : 0,
+      //             "diffculty" : 3.5,
+      //             "_id" : "583fd31b3c5c757741b92b46",
+      //             "itemList" : [
+      //                 "asdf",
+      //                 "we",
+      //                 "er"
+      //             ]
+      //         }
+      //     ],
+      //     "__v" : 0
+      //   }
+      // ]
+      paperList: []
+    }
+  },
+  created: function(){
+    console.log('query-paper created');
+    this.fetchData()
+  },
+  methods: {
+    toPaper: function(index){
+      console.log('toPaper');
+      router.push({
+        // path: '/query-paper',
+        name: 'queryPaper',
+        params: {
+          paper: this.paperList[index]
+        }
+      })
+    },
+    fetchData: function(){
+      this.loading = true;
+      this.$http.get('/api/get-papers').then(
+        function(response){
+          this.loading = false;
+          this.paperList = response.body;
+        },
+        function(response){
+          console.log(response);
+        }
+      )
+    }
+  }
+})
+
+var query_paper = Vue.component('query-paper', {
+  template: '#query-paper-tpl',
+  data: function(){
+    return {
+      paper: this.$route.params.paper
+    }
+  },
+  created: function(){
+    console.log(this.$route.params.paper);
+  }
+})
+
+Vue.component('single-read-only', {
+  template: '#single-read-only-tpl',
+  props: ['question'],
+  data: function(){
+    return {
+
+    }
+  }
+})
+
+Vue.component('mutiple-read-only', {
+  template: '#mutiple-read-only-tpl',
+  props: ['question'],
+  data: function(){
+    return {
+
+    }
+  }
+})
+
+Vue.component('blank-read-only', {
+  template: '#blank-read-only-tpl',
+  props: ['question'],
+  data: function(){
+    return {
+
+    }
+  }
+})
+
 var bus = new Vue();
 
 var router = new VueRouter({
@@ -928,6 +1102,15 @@ var router = new VueRouter({
       path: '/add-blank',
       component: add_blank
     },
+    {
+      path: '/paper-list',
+      component: paper_list
+    },
+    {
+      path: '/query-paper',
+      name: 'queryPaper',
+      component: query_paper
+    }
   ]
 })
 

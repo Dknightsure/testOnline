@@ -18,6 +18,7 @@
           <li role="presentation"><router-link to="/my-single">我的单选</router-link></li>
           <li role="presentation"><router-link to="/my-mutiple">我的多选</router-link></li>
           <li role="presentation"><router-link to="/my-blank">我的填空</router-link></li>
+          <li role="presentation"><router-link to="/paper-list">我的试卷</router-link></li>
           <li role="presentation"><router-link to="/add-single">添加单选</router-link></li>
           <li role="presentation"><router-link to="/add-mutiple">添加多选</router-link></li>
           <li role="presentation"><router-link to="/add-blank">添加填空</router-link></li>
@@ -28,6 +29,136 @@
       </div>
       <paper-car></paper-car>
     </div>
+
+    <script type="text/x-template" id="query-paper-tpl">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3>{{ paper.name }}</h3></div>
+        <div class="panel-body">
+          <!-- <h4>小标题</h4> -->
+          <div v-if="paper.singleQuestions.length > 0" class="paper-area">
+            <h4>单选题:</h4>
+            <single-read-only v-for="item in paper.singleQuestions" v-bind:question="item" class="q-item"></single-read-only>
+          </div>
+          <div v-if="paper.mutipleQuestions.length > 0" class="paper-area">
+            <h4>多选题:</h4>
+            <mutiple-read-only v-for="item in paper.mutipleQuestions" v-bind:question="item" class="q-item"></mutiple-read-only>
+          </div>
+          <div v-if="paper.blankQuestions.length > 0" class="paper-area">
+            <h4>填空题:</h4>
+            <blank-read-only v-for="item in paper.blankQuestions" v-bind:question="item" class="q-item"></blank-read-only>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="paper-list-tpl">
+      <table class="table table-hover paper-table">
+        <thead>
+          <tr>
+            <th>试卷名称</th>
+            <th>发布时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in paperList">
+            <td class="paper-name" v-on:click="toPaper(index)">{{ item.name }}</td><td>2016-11-11</td>
+          </tr>
+        </tbody>
+      </table>
+    </script>
+
+    <script type="text/x-template" id="single-read-only-tpl">
+      <div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">单选题目:</label>
+          <div class="col-sm-10">
+            <p class="question-title">{{ question.title }}</p>
+          </div>
+        </div>
+        <ul class="question-item-ul">
+          <li v-for="(item, index) in question.itemList">
+            <div>
+              <label for="single_question_title" class="col-sm-2 control-label">选项 {{ index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <p class="question-item">{{ item  }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.diffculty }}</p>
+          </div>
+        </div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">正确答案：</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.answer | numToChar }}</p>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="mutiple-read-only-tpl">
+      <div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">多选题目:</label>
+          <div class="col-sm-10">
+            <p class="question-title">{{ question.title }}</p>
+          </div>
+        </div>
+        <ul class="question-item-ul">
+          <li v-for="(item, index) in question.itemList">
+            <div>
+              <label for="single_question_title" class="col-sm-2 control-label">选项 {{ index | numToChar }}：</label>
+              <div class="col-sm-10">
+                <p class="question-item">{{ item  }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.diffculty }}</p>
+          </div>
+        </div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">正确答案：</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.answer | numArrToChar }}</p>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="blank-read-only-tpl">
+      <div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">填空题目:</label>
+          <div class="col-sm-10">
+            <p class="question-title">{{ question.title }}</p>
+          </div>
+        </div>
+        <div class="q-i">
+          <label for="single_question_title" class="col-sm-2 control-label">困难度:</label>
+          <div class="col-sm-10">
+            <p class="question-item">{{ question.diffculty }}</p>
+          </div>
+        </div>
+        <ul class="question-item-ul">
+          <li v-for="(item, index) in question.answer">
+            <div>
+              <label for="single_question_title" class="col-sm-2 control-label">答案 {{ index }}：</label>
+              <div class="col-sm-10">
+                <p class="question-item">{{ item }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </script>
 
     <script type="text/x-template" id="paper-car-tpl">
       <div class="paper">

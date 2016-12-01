@@ -296,4 +296,10 @@ router.post('/api/add-paper', function(req, res, next){
   });
 })
 
+router.get('/api/get-papers', function(req, res, next){
+  PaperModel.find({}, function(err, data){
+    res.json(data);
+  })
+})
+
 module.exports = router;
