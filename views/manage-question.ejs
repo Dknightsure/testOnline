@@ -26,8 +26,29 @@
           <router-view></router-view>
         </div>
       </div>
-      </div>
+      <paper-car></paper-car>
     </div>
+
+    <script type="text/x-template" id="paper-car-tpl">
+      <div class="paper">
+        <div class="control-panel" v-bind:class="{active: showQuestionList}">
+          <input type="text" class="form-control" placeholder="请在这里输入试卷名称..." v-model='paperName'>
+          <ul class="paper-question-list">
+            <li v-for="(item, index) in questionList">
+              <i class="btn-remove" v-on:click="removeQuestion(index)">X</i>
+              {{ item.title }}
+            </li>
+          </ul>
+          <button type="button" class="btn btn-xs btn-default fl" v-on:click="clearPaper">清空试卷</button>
+          <button type="button" class="btn btn-xs btn-default fr" v-on:click="submitPaper">发布试卷</button>
+        </div>
+        <div v-on:click="showQuestionList = !showQuestionList">
+          <i class="glyphicon glyphicon-book"></i>
+          试卷中题目数量：{{ questionList.length }}
+          <div class="bottom"></div>
+        </div>
+      </div>
+    </script>
 
     <script type="text/x-template" id="single-panel-tpl">
       <div>
@@ -115,6 +136,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <button type="button" class="btn btn-default" v-on:click="alterQuestion">修改</button>
             <button type="button" class="btn btn-default" v-on:click="deleteQuestion">删除</button>
+            <button type="button" class="btn btn-default fr" v-on:click="addToPaper">加入试卷</button>
           </div>
         </div>
       </div>
@@ -220,6 +242,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <button type="button" class="btn btn-default" v-on:click="alterQuestion">修改</button>
             <button type="button" class="btn btn-default" v-on:click="deleteQuestion">删除</button>
+            <button type="button" class="btn btn-default fr" v-on:click="addToPaper">加入试卷</button>
           </div>
         </div>
       </div>
@@ -288,6 +311,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <button type="button" class="btn btn-default" v-on:click="alterQuestion">修改</button>
             <button type="button" class="btn btn-default" v-on:click="deleteQuestion">删除</button>
+            <button type="button" class="btn btn-default fr" v-on:click="addToPaper">加入试卷</button>
           </div>
         </div>
       </div>

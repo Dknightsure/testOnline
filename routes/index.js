@@ -41,9 +41,17 @@ var BlankQuestionSchema = new mongoose.Schema({
   type: {type:String}
 });
 
+var PaperSchema = new mongoose.Schema({
+  name: {type:String},
+  singleQuestions: [SingleQuestionSchema],
+  mutipleQuestions: [MutipleQuestionSchema],
+  blankQuestions:[BlankQuestionSchema]
+});
+
 var SingleQuestionModel = db.model('SingleQuestions', SingleQuestionSchema);
 var MutipleQuestionModel = db.model('MutipleQuestions', MutipleQuestionSchema);
 var BlankQuestionModel = db.model('BlankQuestions', BlankQuestionSchema);
+var PaperModel = db.model('Papers', PaperSchema);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -235,5 +243,57 @@ router.post('/api/remove-blank-question', function(req, res, next){
     }
   })
 });
+
+router.post('/api/add-paper', function(req, res, next){
+  var paper_data = JSON.parse(req.body.paper);
+
+  var paper = new PaperModel({
+    name: paper_data.name
+  });
+
+  //添加单选
+  for(var i = 0; i < paper_data.singleQuestions.length; i++){
+    var q = paper_data.singleQuestions[i];
+    var question = {
+      title: q.title,
+      itemList: q.itemList,
+      answer: q.answer,
+      diffculty: q.diffculty
+    }
+    paper.singleQuestions.push(question);
+  }
+
+  //添加多选
+  for(var j = 0; j < paper_data.mutipleQuestions.length; j++){
+    var q = paper_data.mutipleQuestions[j];
+    var question = {
+      title: q.title,
+      itemList: q.itemList,
+      answer: q.answer,
+      diffculty: q.diffculty
+    }
+    paper.mutipleQuestions.push(question);
+  }
+
+  //添加填空
+  for(var k = 0; k < paper_data.blankQuestions.length; k++){
+    var q = paper_data.blankQuestions[k];
+    var question = {
+      title: q.title,
+      answer: q.answer,
+      diffculty: q.diffculty
+    }
+    paper.blankQuestions.push(question);
+  }
+
+  paper.save(function(err, ques){
+    if(err){
+      console.log(err);
+      res.json('fail');
+    }else{
+      res.json('success');
+    }
+  });
+})
 
 module.exports = router;

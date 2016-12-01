@@ -73,3 +73,102 @@ h1{
 .btn-cancel:hover{
   background-color: #e6e1e1;
 }
+
+.paper{
+  display: block;
+  position: fixed;
+  left: 140px;
+  bottom: 0px;
+  width: 180px;
+  height: 40px;
+  padding: 0 10px;
+  font-size: 15px;
+  line-height: 35px;
+  border-radius: 3px;
+  text-align: center;
+  color: #ffffff;
+  background-color: #337ab7;
+  cursor: pointer;
+}
+
+.paper .bottom{
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 5px;
+  left: 0;
+  bottom: 0;
+  background-color: #e2dcf5;
+}
+
+.paper .control-panel{
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  display: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #eeeeee;
+  width: 100%;
+  background-color: #eeeeee;
+  color: #000000;
+}
+
+.control-panel.active{
+  display: block;
+}
+
+.control-panel .paper-question-list{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.control-panel .paper-question-list li{
+  border-bottom: 1px solid #ead9d9;
+  position: relative;
+  height: 35px;
+  font-size: 15px;
+  line-height: 35px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 25px;
+  text-align: left;
+}
+
+.control-panel button{
+  margin: 8px 12px;
+}
+
+.control-panel .paper-question-list li:hover .btn-remove{
+  display: block;
+}
+
+.btn-remove{
+  display: none;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  left: 5px;
+  top: 8px;
+  font-style: normal;
+  cursor: pointer;
+  text-align: center;
+  background-color: #eee;
+  line-height: 20px;
+}
+
+.btn-remove:hover{
+  background-color: #e6e1e1;
+}
+
+.fr{
+  float: right;
+}
+
+.fl{
+  float: left;
+}

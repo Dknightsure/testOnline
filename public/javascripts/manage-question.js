@@ -108,6 +108,17 @@ Vue.component('query-single', {
           console.log(response);
         }
       )
+    },
+    addToPaper: function(){
+      console.log('addToPaper');
+      var question_data = {
+        title: this.initQuestion.title,
+        itemList: this.initQuestion.itemList,
+        answer: this.initQuestion.answer,
+        diffculty: this.initQuestion.diffculty,
+        type: 'single'
+      }
+      bus.$emit('addToPaper', question_data);
     }
   },
   created: function(){
@@ -267,7 +278,7 @@ Vue.component('query-mutiple', {
   props: ['initQuestion'],
   data: function(){
     return {
-      // question: deepClone(this.initQuestion)
+
     }
   },
   methods: {
@@ -288,6 +299,17 @@ Vue.component('query-mutiple', {
           console.log(response);
         }
       )
+    },
+    addToPaper: function(){
+      console.log('addToPaper');
+      var question_data = {
+        title: this.initQuestion.title,
+        itemList: this.initQuestion.itemList,
+        answer: this.initQuestion.answer,
+        diffculty: this.initQuestion.diffculty,
+        type: 'mutiple'
+      }
+      bus.$emit('addToPaper', question_data);
     }
   },
   created: function(){
@@ -451,6 +473,16 @@ Vue.component('query-blank', {
           console.log(response);
         }
       )
+    },
+    addToPaper: function(){
+      console.log('addToPaper');
+      var question_data = {
+        title: this.initQuestion.title,
+        answer: this.initQuestion.answer,
+        diffculty: this.initQuestion.diffculty,
+        type: 'blank'
+      }
+      bus.$emit('addToPaper', question_data);
     }
   },
   created: function(){
@@ -783,6 +815,87 @@ Vue.filter('numArrToChar', function (arr) {
   }
   return res.join(', ');
 });
+
+Vue.component('paper-car', {
+  template: '#paper-car-tpl',
+  data: function(){
+    return {
+      showQuestionList: false,
+      paperName: '',
+      questionList: []
+    }
+  },
+  created: function(){
+    console.log('paper-car created');
+    var list = this.questionList
+    bus.$on('addToPaper', function(question){
+      list.push(question);
+    })
+  },
+  methods: {
+    removeQuestion: function(index){
+      this.questionList.splice(index, 1);
+    },
+    validatePaper: function(){
+      if(this.paperName.trim() == ''){
+        alert('请输入试卷名字');
+        return false;
+      }
+
+      if(this.questionList.length < 1){
+        alert('请加入试题');
+        return false;
+      }
+
+      return true;
+    },
+    submitPaper: function(){
+      var paper;
+      if(this.validatePaper()){
+        paper = {
+          name: this.paperName,
+          singleQuestions: [],
+          mutipleQuestions: [],
+          blankQuestions: []
+        }
+
+        for(var i = 0; i < this.questionList.length; i++){
+          if(this.questionList[i].type === 'single'){
+            paper.singleQuestions.push(this.questionList[i]);
+          }else if(this.questionList[i].type === 'mutiple'){
+            paper.mutipleQuestions.push(this.questionList[i]);
+          }else if(this.questionList[i].type === 'blank'){
+            paper.blankQuestions.push(this.questionList[i]);
+          }
+        }
+
+        paper = JSON.stringify(paper);
+        console.log(paper);
+
+        this.$http.post('/api/add-paper', {paper: paper}).then(
+          function(response){
+            if(response.body == 'success'){
+              alert('添加试卷成功');
+              this.questionList.splice(0, this.questionList.length);
+              this.paperName = '';
+            }else{
+              alert('添加试卷失败');
+            }
+          },
+          function(response){
+            console.log(response);
+          }
+        )
+      }
+    },
+    clearPaper: function(){
+      this.questionList.splice(0, this.questionList.length);
+      this.paperName = '';
+    }
+  }
+})
+
+var bus = new Vue();
 
 var router = new VueRouter({
   linkActiveClass: 'active',
